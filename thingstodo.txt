@@ -1,0 +1,18 @@
+Frontend:
+    Login Page
+    Register Page
+    Search Page
+    Movie/TvShow Page
+
+Backend:
+    Models:
+        User/SuperUser
+        Media
+        Servers
+    APi:
+        login
+        search
+        get_movie
+        get_serial
+        get_season
+        get_episode
