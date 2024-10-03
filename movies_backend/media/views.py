@@ -44,38 +44,32 @@ def add_tv_show(request):
 
     title, img, description, seasons = get_tv_show_parameters(tmdb_id)
 
-    tvshow_data = {
+    tv_show_data = {
         'imdb_id' : imdb_id,
         'tmdb_id' : tmdb_id,
         'title' : title,
         'image' : img,
-        'description' : description
+        'description' : description,
+        'seasons': seasons
     }
-    tv_show_serializer = TVShowsSerializer(data=tvshow_data)
+    tv_show_serializer = TVShowsSerializer(data=tv_show_data)
     if tv_show_serializer.is_valid():
         tv_show_serializer.save()
     else:
         return Response(status=400, data=tv_show_serializer.errors)
-    
-    for season in seasons:
-        seasons_serializer = SeasonsSerializer(data={'tv_show_id': tv_show_serializer.data['id'], 'season_number': season['season_number']})
-        if seasons_serializer.is_valid():
-            seasons_serializer.save()
-            for episode in season['episodes']:
-                episode_serializer = EpisodesSerializer(data={'season_id': seasons_serializer.data['id'], 'episode_number': episode['episode_number'], 'title': episode['title']})
-                if episode_serializer.is_valid():
-                    episode_serializer.save()
-                else:
-                    return Response(status=400, data=episode_serializer.errors)
-        else:
-            return Response(status=400, data=seasons_serializer.errors)
 
-    return Response()
+    return Response(tv_show_serializer.data)
 
 @api_view(['GET'])
 def get_tv_shows(request):
-    tv_shows = TVShows.objects.select_related("seasons").all()
-    print(tv_shows.values())
-    serializer = MoviesSerializer(tv_shows, many=True)
+    tv_shows = TVShows.objects.all()
+    serializer = TVShowsSerializer(tv_shows, many=True)
     
     return Response(serializer.data)
+
+@api_view(['GET'])
+def get_media_titles(request):
+    tv_shows_titles = [title for (title,) in TVShows.objects.values_list('title')]
+    movies_titles = [title for (title,) in Movies.objects.values_list('title')]
+    titles = tv_shows_titles + movies_titles
+    return Response(titles)

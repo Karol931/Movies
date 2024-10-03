@@ -17,10 +17,10 @@ class TVShows(models.Model):
     image = models.CharField(max_length=255, null=False)
 
 class Seasons(models.Model):
-    tv_show = models.ForeignKey(to=TVShows, to_field='id', on_delete=models.CASCADE, default=None)
+    tv_show = models.ForeignKey(to=TVShows, to_field='id', related_name='seasons', on_delete=models.CASCADE, default=None)
     season_number = models.IntegerField()
 
 class Episodes(models.Model):
-    season = models.ForeignKey(to=Seasons, to_field='id', on_delete=models.CASCADE, default=None)
+    season = models.ForeignKey(to=Seasons, to_field='id', related_name='episodes', on_delete=models.CASCADE, default=None)
     episode_number = models.IntegerField()
     title = models.CharField(max_length=255)
