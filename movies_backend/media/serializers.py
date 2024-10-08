@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movies, TVShows, Seasons, Episodes
+from .models import Movies, TVShows, Seasons, Episodes, Servers
 
 class MoviesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,9 +42,8 @@ class TVShowsSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         seasons_data = validated_data.pop('seasons')
-        print(seasons_data)
-        print()
         tv_show = TVShows.objects.create(**validated_data)
+
         for season_data in seasons_data:
             episodes_data = season_data.pop('episodes')
             season = Seasons.objects.create(tv_show=tv_show, **season_data)
@@ -53,5 +52,10 @@ class TVShowsSerializer(serializers.ModelSerializer):
                 Episodes.objects.create(season=season, **episode_data)
             
         return tv_show
+
+class ServersSerializer(serializers.ModelSerializer):
     
+    class Meta:
+        model = Servers
+        fields = '__all__'         
 

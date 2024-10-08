@@ -119,3 +119,26 @@ def get_episode_title(soup, episode_number):
         episode_title = None
 
     return episode_title
+
+
+def put_imdb_or_tmdb_id_in_link(imdb_id, tmdb_id, link):
+    flag = re.search(r'imdbId', link)
+    if flag:
+        link = re.sub(r'imdbId', imdb_id, link)
+    else:
+        link = re.sub(r'tmdbId', tmdb_id, link)
+
+    return link
+
+
+def put_season_in_link(season, link):
+    
+    link = re.sub(r'season', season, link)
+
+    return link
+
+def put_episode_in_link(episode, link):
+    
+    link = re.sub(r'episode', episode, link)
+
+    return link

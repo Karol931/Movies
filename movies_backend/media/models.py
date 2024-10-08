@@ -24,3 +24,7 @@ class Episodes(models.Model):
     season = models.ForeignKey(to=Seasons, to_field='id', related_name='episodes', on_delete=models.CASCADE, default=None)
     episode_number = models.IntegerField()
     title = models.CharField(max_length=255)
+
+class Servers(models.Model):
+    name = models.CharField(max_length=255, unique=True, null=False)
+    link = models.CharField(max_length=255, unique=True, null=False)

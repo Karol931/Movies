@@ -3,8 +3,9 @@ from . import views
 
 urlpatterns = [
     path('add_movie', views.add_movie, name='add_movie'),
-    path('get_movies', views.get_movies, name='get_movies'),
+    path('get_movie', views.get_movie, name='get_movie'),
     path('add_tv_show', views.add_tv_show, name='add_tv_show'),
-    path('get_tv_shows', views.get_tv_shows, name='get_tv_shows'),
+    path('get_tv_show', views.get_tv_show, name='get_tv_show'),
     path('get_media_titles', views.get_media_titles, name='get_media_titles'),
+    path('add_server', views.add_server, name='add_server'),
 ]
