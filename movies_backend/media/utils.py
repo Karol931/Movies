@@ -62,7 +62,6 @@ def get_tv_show_parameters(tmdb_id):
     seasons = [
         {'season_number': season, 'episodes': [{'title': get_episode_title(get_episodes_data(tmdb_id, season), episode), 'episode_number': episode } for episode in range(1,int(get_episodes_number(get_episodes_data(tmdb_id, season)))+1)]} for season in range(1,int(seasons_number) + 1)
     ]
-    # print(seasons)
     return title, img, description, seasons
 
 def get_media_title(soup):
