@@ -5,3 +5,4 @@ djangorestframework
 requests
 bs4
 re
+drf-yasg

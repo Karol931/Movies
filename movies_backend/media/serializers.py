@@ -59,3 +59,40 @@ class ServersSerializer(serializers.ModelSerializer):
         model = Servers
         fields = '__all__'         
 
+class MediaSerializer(serializers.Serializer):
+
+    def get_titles(self, instance):
+        tv_shows_titles = [title for (title,) in TVShows.objects.values_list('title')]
+        movies_titles = [title for (title,) in Movies.objects.values_list('title')]
+        titles = tv_shows_titles + movies_titles
+
+        return titles
+    
+    def get_tv_show_params(self, instance):
+        params = {
+            'title': instance.title,
+            'description': instance.description,
+            'image': instance.image,
+            'seasons': 
+            [{
+                'season_params': season.season_number, 
+                'episodes': 
+                [
+                    {
+                    'episode_number': episode.episode_number,
+                    'title': episode.title 
+                    } for episode in Episodes.objects.filter(season=season)
+                ]
+            } for season in Seasons.objects.filter(tv_show=instance)
+            ]}
+
+        return params
+    
+    def get_movie_params(self, instance):
+        params = {
+            'title': instance.title,
+            'description': instance.description,
+            'image': instance.image,
+        }
+
+        return params
