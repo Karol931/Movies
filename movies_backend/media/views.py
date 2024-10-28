@@ -4,25 +4,32 @@ from .utils import get_movie_parameters, get_tv_show_parameters, put_imdb_or_tmd
 from .serializers import MoviesSerializer, TVShowsSerializer, ServersSerializer, MediaSerializer
 from .models import Movies, TVShows, Servers
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
-from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_INTEGER
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from .exceptions import RequestDataException, TitleException, ServerNameException, ScrapingException
+from movies_backend.exceptions import RequestDataException, TitleException, ServerNameException, ScrapingException
+from movies_backend.utils import get_title_error_property, get_server_error_property, get_scraping_error_property, get_serializer_error_property, get_request_data_error_property, get_header_param
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'title': Schema(type=TYPE_STRING, description='title of the movie to wacth'),
-            'server': Schema(type=TYPE_STRING, description='Server name from witch to watch'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='title of the movie to watch'),
+            'server': openapi.Schema(type=openapi.TYPE_STRING, description='Server name from witch to watch'),
         }
 ),
 responses={
-    200: {'movie_link': 'movie_link'},
-    400: [
-            {'title': 'There is no media named title in the database.'},
-            {'server': 'There is no server named \'server_name\' in the database.'},
-            {'request data': 'Provided wrong request data'},
-        ],
+    200: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={'movie link': 'Link for the movie'}),
+    400: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'title': get_title_error_property(),
+                'server': get_server_error_property(),
+                'request data': get_request_data_error_property(),
+            },
+            description='Bad request error details'
+        ),
 })
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -47,24 +54,33 @@ def get_movie(request):
 
     movie_link = put_imdb_or_tmdb_id_in_link(imdb_id, tmdb_id, server_link)
 
-    return Response(status=200, data={'movie_link': movie_link})
+    return Response(status=200, data={'movie link': movie_link})
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'imdbId': Schema(type=TYPE_STRING, description='Id of the movie from IMDB databse'),
-            'tmdbId': Schema(type=TYPE_STRING, description='Id of the movie from TMDB database'),
+            'imdbId': openapi.Schema(type=openapi.TYPE_STRING, description='Id of the movie from IMDB databse'),
+            'tmdbId': openapi.Schema(type=openapi.TYPE_STRING, description='Id of the movie from TMDB database'),
         }
 ),
+manual_parameters=get_header_param(),
 responses={
-    200: {'movie data'},
-    400: [
-            {'scraping': 'Couldn\'t scrap required parameters'},
-            {'serializer': 'Serializer errors'},
-            {'request data': 'Provided wrong request data'},
-        ],
-    401: {"detail": "Authentication credentials were not provided."},
+    200: MoviesSerializer(),
+    400: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'scraping': get_scraping_error_property(),
+                'serializer': get_serializer_error_property(),
+                'request data': get_request_data_error_property(),
+            },
+            description='Bad request error details'
+        ),
+    401: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'detail': openapi.Schema(type=openapi.TYPE_STRING, description='Authentication credentials were not provided.')
+            },)
 })
 @api_view(['POST'])
 @permission_classes([IsAdminUser, IsAuthenticated])
@@ -98,22 +114,28 @@ def add_movie(request):
     return Response(status=200, data=serializer.data)
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'title': Schema(type=TYPE_STRING, description='Title of the Tv show to watch'),
-            'server': Schema(type=TYPE_STRING, description='Server name from witch to watch'),
-            'seasonNumber': Schema(type=TYPE_STRING, description='Season of the Tv show'),
-            'episodeNumber': Schema(type=TYPE_STRING, description='Episode of the season'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Title of the Tv show to watch'),
+            'server': openapi.Schema(type=openapi.TYPE_STRING, description='Server name from witch to watch'),
+            'seasonNumber': openapi.Schema(type=openapi.TYPE_STRING, description='Season of the Tv show'),
+            'episodeNumber': openapi.Schema(type=openapi.TYPE_STRING, description='Episode of the season'),
         }
 ),
 responses={
-    200: {'tv_show link'},
-    400: [
-            {'title': 'There is no movie named \'title\' in the database.'},
-            {'server': 'There is no server named \'server_name\' in the database.'},
-            {'request data': 'Provided wrong request data'},
-        ],
+    200: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={'Tv show link': 'Link for the Tv show'}),
+    400: openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': get_title_error_property(),
+            'server': get_server_error_property(),
+            'request data': get_request_data_error_property(),
+        },
+        description='Bad request error details'
+    ),
 })
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -142,24 +164,33 @@ def get_tv_show(request):
     tv_show_link = put_season_in_link(season_number, tv_show_link)
     tv_show_link = put_episode_in_link(episode_number, tv_show_link)
 
-    return Response(status=200, data={'tv_show_link': tv_show_link})
+    return Response(status=200, data={'Tv show link': tv_show_link})
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'imdbId': Schema(type=TYPE_STRING, description='Id of the Tv show from IMDB databse'),
-            'tmdbId': Schema(type=TYPE_STRING, description='Id of the Tv show from TMDB database'),
+            'imdbId': openapi.Schema(type=openapi.TYPE_STRING, description='Id of the Tv show from IMDB databse'),
+            'tmdbId': openapi.Schema(type=openapi.TYPE_STRING, description='Id of the Tv show from TMDB database'),
         }
 ),
+manual_parameters=get_header_param(),
 responses={
-    200: {'tv_show data'},
-    400: [
-            {'scraping': 'Couldn\'t scrap required parameters'},
-            {'serializer': 'Serializer errors'},
-            {'request data': 'Provided wrong request data'},
-        ],
-    401: {"detail": "Authentication credentials were not provided."}
+    200: TVShowsSerializer(),
+    400: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'scraping': get_scraping_error_property(),
+                'serializer': get_serializer_error_property(),
+                'request data': get_request_data_error_property(),
+            },
+            description='Bad request error details'
+        ),
+    401: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'detail': openapi.Schema(type=openapi.TYPE_STRING, description='Authentication credentials were not provided.')
+            },)
 })
 @api_view(['POST'])
 @permission_classes([IsAdminUser, IsAuthenticated])
@@ -194,7 +225,11 @@ def add_tv_show(request):
 
 @swagger_auto_schema(method='get',
 responses={
-    200: {'titles_list'},
+    200: openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Items(type=openapi.TYPE_STRING),
+            description='An array of movie titles'
+        ),
 })
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -204,20 +239,31 @@ def get_media_titles(request):
     return Response(status=200, data=titles)
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'serverLink': Schema(type=TYPE_STRING, description='General link for the service'),
-            'serverName': Schema(type=TYPE_STRING, description='Name for the server'),
+            'serverLink': openapi.Schema(type=openapi.TYPE_STRING, description='General link for the service'),
+            'serverName': openapi.Schema(type=openapi.TYPE_STRING, description='Name for the server'),
         }
 ),
+manual_parameters=get_header_param(),
 responses={
-    200: {'server data'},
-    400: [
-            {'serializer': 'Serializer errors'},
-            {'request data': 'Provided wrong request data'},
-        ],
-    401: {"detail": "Authentication credentials were not provided."}
+    200: ServersSerializer(),
+    400: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+               
+                'serializer': get_serializer_error_property(),
+                'request data': get_request_data_error_property(),
+            },
+            description='Bad request error details'
+        ),
+
+    401: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'detail': openapi.Schema(type=openapi.TYPE_STRING, description='Authentication credentials were not provided.')
+            },)
 })
 @api_view(['POST'])
 @permission_classes([IsAdminUser, IsAuthenticated])
@@ -239,22 +285,29 @@ def add_server(request):
     return Response(status=200, data=serializer.data)
 
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'title': Schema(type=TYPE_STRING, description='General link for the service'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Title of the movie'),
         }
 ),
 responses={
-    200: {'movie params'},
-    400: [
-            {'title': 'There is no media named \'title\' in the database.'},
-            {'request data': 'Provided wrong request data'},
-        ],
+    200: openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+            properties={'movie params': 'Parameters of the movie'},
+    ),
+    400: openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'title': openapi.Schema(type=openapi.TYPE_STRING, description='There is no media named \'title\' in the database.'),
+                'request data': get_request_data_error_property(),
+            },
+            description='Bad request error details'
+        ),
 })
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def get_movie_params(request):
+def get_movie_data(request):
     title = request.data.get('title')
 
     if not title:
@@ -268,24 +321,32 @@ def get_movie_params(request):
     serializer = MediaSerializer()
     params = serializer.get_movie_params(movie)
     
-    return Response(status=200, data=params)
+    return Response(status=200, data={'movie params': params})
 
-@swagger_auto_schema(method='post', request_body=Schema(
-        type=TYPE_OBJECT,
+
+@swagger_auto_schema(method='post', request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
         properties={
-            'title': Schema(type=TYPE_STRING, description='General link for the service'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Title of the Tv show'),
         }
 ),
 responses={
-    200: {'movie params'},
-    400: [
-            {'title': 'There is no media named \'title\' in the database.'},
-            {'request data': 'Provided wrong request data'},
-        ],
+    200: openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+            properties={'Tv show params': 'Parameters of the Tv show'},
+    ),
+    400: openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='There is no media named \'title\' in the database.'),
+            'request data': get_request_data_error_property(),
+        },
+        description='Bad request error details'
+    ),
 })
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def get_tv_show_params(request):
+def get_tv_show_data(request):
     title = request.data.get('title')
     
     if not title:
@@ -299,4 +360,4 @@ def get_tv_show_params(request):
     serializer = MediaSerializer()
     params = serializer.get_tv_show_params(tv_show)
     
-    return Response(status=200, data=params)
+    return Response(status=200, data={'Tv show params': params})

@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('media/', include('media.urls')),
     path('auth/', include('users.urls')),
+    path('docs/', include('swagger_docs.urls')),
 ]

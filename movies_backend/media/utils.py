@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-
 def get_movie_data(tmdb_id):
     url = 'https://www.themoviedb.org/movie/' + tmdb_id + '/'
     source = requests.get(url).text

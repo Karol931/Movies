@@ -1,18 +1,33 @@
-Frontend:
-    Login Page
-    Register Page
-    Search Page
-    Movie/TvShow Page
-
 Backend:
     Models:
         User/SuperUser
         Media
         Servers
     APi:
-        login
-        search
-        get_movie
-        get_serial
-        get_season
-        get_episode
+        for user:
+            register
+            login
+            search
+            get_similar_titles
+            get_movie_params
+            get_serial_params
+            get_movie
+            get_serial
+        for admin:
+            add_server
+            add_movie
+            add_serial
+
+
+{
+"username": "test",
+"email": "test@test.test",
+"password": "test",
+"password_confirmation": "test",
+"is_staff": false
+}
+
+{
+"title": "title",
+"server": "server"
+}

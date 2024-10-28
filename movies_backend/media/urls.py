@@ -8,6 +8,6 @@ urlpatterns = [
     path('get_tv_show/', views.get_tv_show, name='get_tv_show'),
     path('get_media_titles/', views.get_media_titles, name='get_media_titles'),
     path('add_server/', views.add_server, name='add_server'),
-    path('get_movie_params/', views.get_movie_params, name='get_movie_params'),    
-    path('get_tv_show_params/', views.get_tv_show_params, name='get_tv_show_params'),
+    path('get_movie_data/', views.get_movie_data, name='get_movie_data'),    
+    path('get_tv_show_data/', views.get_tv_show_data, name='get_tv_show_data'),
 ]

@@ -53,11 +53,13 @@ class TVShowsSerializer(serializers.ModelSerializer):
             
         return tv_show
 
+
 class ServersSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Servers
         fields = '__all__'         
+
 
 class MediaSerializer(serializers.Serializer):
 
